@@ -10,8 +10,6 @@ import com.mehmetbaloglu.geminichatbot.ui.screens.ChatScreen
 fun AppNavigation(){
 
     val navController = rememberNavController()
-    // We use navController to navigate between screens in our app.
-    // It keeps track of the current screen and provides functions to navigate to other screens.
     NavHost(
         navController = navController, startDestination = AppScreens.MainScreen.name
     ) {

@@ -8,7 +8,6 @@ import com.mehmetbaloglu.geminichatbot.ui.screens.ChatScreen
 
 @Composable
 fun AppNavigation(){
-
     val navController = rememberNavController()
     NavHost(
         navController = navController, startDestination = AppScreens.MainScreen.name

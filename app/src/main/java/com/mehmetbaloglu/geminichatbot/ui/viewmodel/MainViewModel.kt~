@@ -46,7 +46,7 @@ class MainViewModel @Inject constructor(private val repository: Repository) : Vi
 
                 _errorMessage.value = serverBusyMessage // Hata mesajını ayarla
 
-                delay(1500) // 1 saniye bekle
+                delay(1000) // 1 saniye bekle
                 clearErrorMessage() // Hata mesajını temizle
             }
             response.data != null -> {

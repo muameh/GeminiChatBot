@@ -1,5 +1,11 @@
 package com.mehmetbaloglu.geminichatbot.ui.screens
 
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -7,9 +13,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -44,6 +53,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.mehmetbaloglu.geminichatbot.model.DataOrException
 import com.mehmetbaloglu.geminichatbot.model.MessageModel
 import com.mehmetbaloglu.geminichatbot.ui.viewmodel.MainViewModel
 
@@ -62,7 +72,7 @@ fun ChatScreen(
 
     LaunchedEffect(errorMessage) {
         if (errorMessage.isNotEmpty()) {
-            snackbarHostState.showSnackbar(errorMessage, duration = SnackbarDuration.Short)
+            snackbarHostState.showSnackbar(errorMessage, duration = SnackbarDuration.Long)
             mainViewModel.clearErrorMessage()
         }
     }
@@ -70,12 +80,19 @@ fun ChatScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("WhatsApp Clone", color = Color.White, fontWeight = FontWeight.Bold) },
+                title = {
+                    Text(
+                        "Gemini Chat Bot",
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold
+                    )
+                },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFF075E54))
             )
         },
         containerColor = Color(0xFFECE5DD),
-        snackbarHost = { SnackbarHost(snackbarHostState) }
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -86,8 +103,20 @@ fun ChatScreen(
         ) {
             MessageList(
                 modifier = Modifier.weight(1f),
-                messageList = messageList
+                messageList = messageList,
+                uiState = uiState
             )
+            // Eğer yükleniyorsa "Typing Indicator" ekle
+            if (uiState.loading == true) {
+
+                Box(
+                    modifier = Modifier.fillMaxWidth().padding(12.dp),
+                    contentAlignment = Alignment.CenterStart
+                ) {
+                    TypingIndicator()
+                }
+
+            }
             MessageInputField(
                 onMessageSend = { mainViewModel.sendMessage(it) }
             )
@@ -132,9 +161,15 @@ fun MessageInputField(onMessageSend: (String) -> Unit) {
 }
 
 @Composable
-fun MessageList(modifier: Modifier, messageList: List<MessageModel>) {
+fun MessageList(
+    modifier: Modifier,
+    messageList: List<MessageModel>,
+    uiState: DataOrException<List<MessageModel>, Boolean, Exception>
+) {
     LazyColumn(
-        modifier = modifier.fillMaxSize().padding(8.dp),
+        modifier = modifier
+            .fillMaxSize()
+            .padding(8.dp),
         reverseLayout = true
     ) {
         items(messageList.reversed()) { message ->
@@ -168,6 +203,39 @@ fun MessageItem(message: MessageModel) {
         }
     }
 }
+
+@Composable
+fun TypingIndicator(modifier: Modifier = Modifier) {
+    val dotCount = 3
+    val infiniteTransition = rememberInfiniteTransition()
+
+    val dotAlphas = List(dotCount) { index ->
+        infiniteTransition.animateFloat(
+            initialValue = 0.3f,
+            targetValue = 1f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(durationMillis = 500, easing = LinearEasing),
+                repeatMode = RepeatMode.Reverse
+            ),
+            label = "Dot Alpha"
+        )
+    }
+
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        dotAlphas.forEachIndexed { index, alpha ->
+            Box(
+                modifier = Modifier
+                    .size(8.dp)
+                    .background(Color.Gray.copy(alpha = alpha.value), CircleShape)
+            )
+        }
+    }
+}
+
 
 
 
