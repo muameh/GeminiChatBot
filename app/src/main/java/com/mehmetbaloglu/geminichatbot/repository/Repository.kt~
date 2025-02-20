@@ -23,10 +23,10 @@ class Repository @Inject constructor(private val generativeModel: GenerativeMode
             )
             val response = chat.sendMessage(question)
             val message = response.text ?: "Error: Empty response"
-            DataOrException(data = message, loading = false, e=null)
+            DataOrException(data = message, loading = false)
         } catch (e: Exception) {
             Log.d("Response", "Received response: ${e.message}")
-            DataOrException(e = e, loading = false, data = e.message.toString())
+            DataOrException(e = e, loading = false)
         }
     }
 
