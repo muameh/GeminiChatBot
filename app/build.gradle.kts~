@@ -110,8 +110,6 @@ dependencies {
 
     //gemini
     implementation("com.google.ai.client.generativeai:generativeai:0.7.0")
-
-    implementation ("com.github.jeziellago:compose-markdown:0.5.6")
 }
 
 
