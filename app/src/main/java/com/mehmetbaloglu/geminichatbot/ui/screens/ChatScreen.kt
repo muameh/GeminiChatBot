@@ -17,6 +17,8 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -26,6 +28,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -35,6 +39,7 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -71,6 +76,7 @@ fun ChatScreen(
     val messageList by mainViewModel.messageList.collectAsState()
     val errorMessage by mainViewModel.errorMessage.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
+    val showDialog = remember { mutableStateOf(false) } // Alert için state
 
     LaunchedEffect(errorMessage) {
         if (errorMessage.isNotEmpty()) {
@@ -80,6 +86,7 @@ fun ChatScreen(
     }
 
     Scaffold(
+        modifier = Modifier.fillMaxSize(),
         topBar = {
             TopAppBar(
                 title = {
@@ -89,11 +96,21 @@ fun ChatScreen(
                         fontWeight = FontWeight.Bold
                     )
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFF075E54))
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFF075E54)),
+                actions = {
+                    IconButton(onClick = {showDialog.value = true}) {
+                        Icon(
+                            imageVector = Icons.Default.Refresh,
+                            contentDescription = "New Chat",
+                            tint = Color.White
+                        )
+                    }
+                }
             )
         },
         containerColor = Color(0xFFECE5DD),
         snackbarHost = { SnackbarHost(snackbarHostState) },
+        contentWindowInsets = WindowInsets(0)
 
     ) { paddingValues ->
         Column(
@@ -123,6 +140,27 @@ fun ChatScreen(
                 onMessageSend = { mainViewModel.sendMessage(it) }
             )
         }
+    }
+    // Alert Dialog
+    if (showDialog.value) {
+        AlertDialog(
+            onDismissRequest = { showDialog.value = false },
+            title = { Text("Yeni Sohbet Başlat") },
+            text = { Text("Mevcut sohbeti silip yeni bir sohbet başlatmak istiyor musunuz?") },
+            confirmButton = {
+                TextButton(onClick = {
+                    mainViewModel.clearChatHistory()
+                    showDialog.value = false
+                }) {
+                    Text("Evet")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDialog.value = false }) {
+                    Text("Hayır")
+                }
+            }
+        )
     }
 }
 
@@ -204,11 +242,6 @@ fun MessageItem(message: MessageModel) {
                     color = Color.Black
                 )
             )
-//            Text(
-//                text = message.message,
-//                fontSize = 16.sp,
-//                color = Color.Black
-//            )
         }
     }
 }
@@ -218,7 +251,7 @@ fun TypingIndicator(modifier: Modifier = Modifier) {
     val dotCount = 3
     val infiniteTransition = rememberInfiniteTransition()
 
-    val dotAlphas = List(dotCount) { index ->
+    val dotAlphas = List(dotCount) { _ ->
         infiniteTransition.animateFloat(
             initialValue = 0.3f,
             targetValue = 1f,

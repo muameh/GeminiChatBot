@@ -61,4 +61,10 @@ class MainViewModel @Inject constructor(private val repository: Repository) : Vi
     fun clearErrorMessage() {
         _errorMessage.value = ""
     }
+
+    fun clearChatHistory() {
+        _messageList.value = emptyList()
+        _uiState.value = DataOrException(data = emptyList(), loading = false, e = null)
+    }
+
 }
