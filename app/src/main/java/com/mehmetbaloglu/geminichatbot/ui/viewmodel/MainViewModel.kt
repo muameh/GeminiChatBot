@@ -1,8 +1,10 @@
 package com.mehmetbaloglu.geminichatbot.ui.viewmodel
 
+import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mehmetbaloglu.geminichatbot.R
 import com.mehmetbaloglu.geminichatbot.model.DataOrException
 import com.mehmetbaloglu.geminichatbot.model.MessageModel
 import com.mehmetbaloglu.geminichatbot.repository.Repository
@@ -14,8 +16,12 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+
 @HiltViewModel
-class MainViewModel @Inject constructor(private val repository: Repository) : ViewModel() {
+class MainViewModel @Inject constructor(
+    private val repository: Repository,
+    private val context: Context
+) : ViewModel() {
 
     private val _messageList = MutableStateFlow<List<MessageModel>>(emptyList())
     val messageList: StateFlow<List<MessageModel>> = _messageList
@@ -35,19 +41,19 @@ class MainViewModel @Inject constructor(private val repository: Repository) : Vi
         val response = repository.sendMessage(question, updatedMessages)
         when {
             response.e != null -> {
-                val errorMsg = response.e?.message ?: "Bilinmeyen bir hata oluştu"
+                val errorMsg = response.e?.message ?: context.getString(R.string.error_unknown)
 
-                // API hatasını kontrol et
                 val serverBusyMessage = if (errorMsg.contains("503") || errorMsg.contains("overloaded", true)) {
-                    "Sunucu yoğun, birazdan tekrar deneyin"
+                    context.getString(R.string.error_server_busy)
                 } else {
                     errorMsg
                 }
 
-                _errorMessage.value = serverBusyMessage // Hata mesajını ayarla
+                _errorMessage.value = serverBusyMessage
+                _uiState.value = DataOrException(data = updatedMessages, loading = false)
 
-                delay(1500) // 1 saniye bekle
-                clearErrorMessage() // Hata mesajını temizle
+                delay(1500)
+                clearErrorMessage()
             }
             response.data != null -> {
                 val botMessage = MessageModel(role = "model", message = response.data!!)
@@ -66,5 +72,4 @@ class MainViewModel @Inject constructor(private val repository: Repository) : Vi
         _messageList.value = emptyList()
         _uiState.value = DataOrException(data = emptyList(), loading = false, e = null)
     }
-
 }

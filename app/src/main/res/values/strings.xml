@@ -1,3 +1,25 @@
 <resources>
-    <string name="app_name">GeminiChatBot</string>
+    <!-- General Texts -->
+    <string name="app_name">Gemini Chat Bot</string>
+    <string name="send">Send</string>
+    <string name="new_chat">Start New Chat</string>
+    <string name="error_server_busy">Server is busy, please try again later</string>
+    <string name="error_unknown">An unknown error occurred</string>
+    <string name="message_hint">Type a message...</string>
+
+    <!-- TopAppBar Texts -->
+    <string name="top_bar_title">Gemini Chat Bot</string>
+    <string name="top_bar_new_chat">New Chat</string>
+
+    <!-- AlertDialog Texts -->
+    <string name="dialog_new_chat_title">Start New Chat</string>
+    <string name="dialog_new_chat_message">Do you want to delete the current chat and start a new one?</string>
+    <string name="dialog_yes">Yes</string>
+    <string name="dialog_no">No</string>
+
+    <!-- Error Messages -->
+    <string name="error_empty_response">Error: Empty response</string>
+
+    <!-- Placeholders and Descriptions -->
+    <string name="typing_indicator">Typing...</string>
 </resources>

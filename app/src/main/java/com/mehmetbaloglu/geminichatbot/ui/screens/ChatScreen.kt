@@ -52,6 +52,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -59,6 +60,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.mehmetbaloglu.geminichatbot.R
 import com.mehmetbaloglu.geminichatbot.model.DataOrException
 import com.mehmetbaloglu.geminichatbot.model.MessageModel
 import com.mehmetbaloglu.geminichatbot.ui.viewmodel.MainViewModel
@@ -71,6 +73,7 @@ fun ChatScreen(
     navController: NavController,
     mainViewModel: MainViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
     val keyboardController = LocalSoftwareKeyboardController.current
     val uiState by mainViewModel.uiState.collectAsState()
     val messageList by mainViewModel.messageList.collectAsState()
@@ -86,7 +89,7 @@ fun ChatScreen(
     }
 
     Scaffold(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize().navigationBarsPadding(),
         topBar = {
             TopAppBar(
                 title = {
@@ -125,7 +128,6 @@ fun ChatScreen(
                 messageList = messageList,
                 uiState = uiState
             )
-            // Eğer yükleniyorsa "Typing Indicator" ekle
             if (uiState.loading == true) {
 
                 Box(
@@ -145,19 +147,19 @@ fun ChatScreen(
     if (showDialog.value) {
         AlertDialog(
             onDismissRequest = { showDialog.value = false },
-            title = { Text("Yeni Sohbet Başlat") },
-            text = { Text("Mevcut sohbeti silip yeni bir sohbet başlatmak istiyor musunuz?") },
+            title = { Text(context.getString(R.string.dialog_new_chat_title)) },
+            text = { Text(context.getString(R.string.dialog_new_chat_message)) },
             confirmButton = {
                 TextButton(onClick = {
                     mainViewModel.clearChatHistory()
                     showDialog.value = false
                 }) {
-                    Text("Evet")
+                    Text(context.getString(R.string.dialog_yes))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showDialog.value = false }) {
-                    Text("Hayır")
+                    Text(context.getString(R.string.dialog_no))
                 }
             }
         )
@@ -166,6 +168,7 @@ fun ChatScreen(
 
 @Composable
 fun MessageInputField(onMessageSend: (String) -> Unit) {
+    val context = LocalContext.current
     val message = remember { mutableStateOf("") }
     Row(
         modifier = Modifier
@@ -178,7 +181,7 @@ fun MessageInputField(onMessageSend: (String) -> Unit) {
             value = message.value,
             onValueChange = { message.value = it },
             modifier = Modifier.weight(1f),
-            placeholder = { Text("Mesaj yaz...") },
+            placeholder = { Text(context.getString(R.string.message_hint)) },
             shape = RoundedCornerShape(24.dp)
         )
         Spacer(modifier = Modifier.width(8.dp))
@@ -193,7 +196,7 @@ fun MessageInputField(onMessageSend: (String) -> Unit) {
         ) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.Send,
-                contentDescription = "Send",
+                contentDescription = context.getString(R.string.send),
                 tint = Color.White
             )
         }
