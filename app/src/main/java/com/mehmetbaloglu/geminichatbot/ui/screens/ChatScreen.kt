@@ -209,14 +209,30 @@ fun MessageList(
     messageList: List<MessageModel>,
     uiState: DataOrException<List<MessageModel>, Boolean, Exception>
 ) {
-    LazyColumn(
+    Box(
         modifier = modifier
             .fillMaxSize()
-            .padding(8.dp),
-        reverseLayout = true
+            .padding(8.dp)
     ) {
-        items(messageList.reversed()) { message ->
-            MessageItem(message)
+        if (messageList.isEmpty()) {
+            Text(
+                text = "Start a conversation!",
+                style = TextStyle(
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color(0xFF075E54) // TopAppBar ile uyumlu renk
+                ),
+                modifier = Modifier.align(Alignment.Center)
+            )
+        } else {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                reverseLayout = true
+            ) {
+                items(messageList.reversed()) { message ->
+                    MessageItem(message)
+                }
+            }
         }
     }
 }
